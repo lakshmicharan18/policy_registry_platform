@@ -3,6 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.db.dependencies import get_db
@@ -14,6 +15,12 @@ from app.schemas.warehouse import WarehouseCreate, WarehouseRead
 
 
 router = APIRouter(prefix="/warehouses", tags=["warehouses"])
+
+
+@router.get("", response_model=list[WarehouseRead])
+def list_warehouses(db: Annotated[Session, Depends(get_db)]) -> list[Warehouse]:
+    """List registered warehouses for onboarding selection."""
+    return list(db.scalars(select(Warehouse).order_by(Warehouse.warehouse_code)).all())
 
 
 @router.post("", response_model=WarehouseRead, status_code=status.HTTP_201_CREATED)

@@ -26,5 +26,7 @@ class Warehouse(Base):
         server_default=func.now(),
     )
     dataset_associations: Mapped[list["WarehouseDataset"]] = relationship(
-        back_populates="warehouse"
+        back_populates="warehouse",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )

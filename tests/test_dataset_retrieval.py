@@ -51,7 +51,7 @@ def test_list_dataset_definitions_is_ordered(client: TestClient) -> None:
     assert response.status_code == 200
     payload = response.json()
     dataset_codes = [dataset["dataset_code"] for dataset in payload]
-    assert dataset_codes == sorted(dataset_codes)
+    assert dataset_codes == sorted(dataset_codes, key=str.casefold)
     assert {first["id"], second["id"]}.issubset(
         {dataset["id"] for dataset in payload}
     )

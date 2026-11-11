@@ -34,7 +34,7 @@ class DatasetColumn(Base):
     )
     dataset_id: Mapped[UUID] = mapped_column(
         PostgreSQLUUID(as_uuid=True),
-        ForeignKey("dataset_definitions.id"),
+        ForeignKey("dataset_definitions.id", ondelete="CASCADE"),
         nullable=False,
     )
     column_name: Mapped[str] = mapped_column(String(100), nullable=False)

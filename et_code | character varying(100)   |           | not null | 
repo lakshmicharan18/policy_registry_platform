@@ -1,0 +1,16 @@
+                    Table "public.dataset_definitions"
+    Column    |           Type           | Collation | Nullable | Default 
+--------------+--------------------------+-----------+----------+---------
+ id           | uuid                     |           | not null | 
+ dataset_code | character varying(100)   |           | not null | 
+ name         | character varying(255)   |           | not null | 
+ description  | text                     |           |          | 
+ created_at   | timestamp with time zone |           | not null | now()
+Indexes:
+    "dataset_definitions_pkey" PRIMARY KEY, btree (id)
+    "dataset_definitions_dataset_code_key" UNIQUE CONSTRAINT, btree (dataset_code)
+Referenced by:
+    TABLE "dataset_columns" CONSTRAINT "dataset_columns_dataset_id_fkey" FOREIGN KEY (dataset_id) REFERENCES dataset_definitions(id)
+    TABLE "dataset_requirement_rules" CONSTRAINT "dataset_requirement_rules_dataset_id_fkey" FOREIGN KEY (dataset_id) REFERENCES dataset_definitions(id)
+    TABLE "warehouse_datasets" CONSTRAINT "warehouse_datasets_dataset_id_fkey" FOREIGN KEY (dataset_id) REFERENCES dataset_definitions(id)
+

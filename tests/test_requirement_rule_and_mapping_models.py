@@ -8,6 +8,7 @@ from app.models.dataset_requirement_rule import DatasetRequirementRule
 from app.models.warehouse import Warehouse
 from app.models.warehouse_dataset import DatasetRequirementType, WarehouseDataset
 from app.models.warehouse_dataset_mapping import WarehouseDatasetMapping
+from app.db.base import Base
 
 
 def unique_constraint_columns(table: object) -> set[frozenset[str]]:
@@ -16,6 +17,14 @@ def unique_constraint_columns(table: object) -> set[frozenset[str]]:
         for constraint in table.constraints  # type: ignore[union-attr]
         if isinstance(constraint, UniqueConstraint)
     }
+
+
+def test_every_application_foreign_key_cascades_from_parent_to_child() -> None:
+    for table in Base.metadata.tables.values():
+        for foreign_key in table.foreign_keys:
+            assert foreign_key.ondelete == "CASCADE", (
+                f"{table.name}.{foreign_key.parent.name} must use ON DELETE CASCADE"
+            )
 
 
 def test_dataset_requirement_rule_metadata_and_relationships() -> None:
@@ -77,6 +86,10 @@ def test_warehouse_dataset_mapping_metadata_and_relationships() -> None:
     assert set(table.columns.keys()) == {
         "id",
         "warehouse_dataset_id",
+        "warehouse_id",
+        "dataset_id",
+        "warehouse_code",
+        "warehouse_name",
         "customer_dataset_name",
         "confirmed_at",
         "confirmed_by",
@@ -85,7 +98,18 @@ def test_warehouse_dataset_mapping_metadata_and_relationships() -> None:
     foreign_key = next(iter(table.c.warehouse_dataset_id.foreign_keys))
     assert foreign_key.target_fullname == "warehouse_datasets.id"
     assert foreign_key.ondelete == "CASCADE"
+    assert "warehouses.id" in {
+        foreign_key.target_fullname for foreign_key in table.c.warehouse_id.foreign_keys
+    }
+    assert "dataset_definitions.id" in {
+        foreign_key.target_fullname for foreign_key in table.c.dataset_id.foreign_keys
+    }
+    assert table.c.warehouse_code.type.length == 50
+    assert table.c.warehouse_name.type.length == 255
     assert frozenset({"warehouse_dataset_id"}) in unique_constraint_columns(table)
+    assert frozenset({"id", "warehouse_id", "dataset_id"}) in unique_constraint_columns(
+        WarehouseDataset.__table__
+    )
     assert WarehouseDatasetMapping.warehouse_dataset.property.mapper.class_ is WarehouseDataset
     assert WarehouseDataset.mapping.property.mapper.class_ is WarehouseDatasetMapping
 

@@ -27,6 +27,14 @@ class WarehouseDataset(Base):
             "dataset_id",
             name="uq_warehouse_datasets_warehouse_id_dataset_id",
         ),
+        # Allows warehouse_dataset_mappings to enforce that its three stored
+        # references describe this exact association.
+        UniqueConstraint(
+            "id",
+            "warehouse_id",
+            "dataset_id",
+            name="uq_warehouse_datasets_id_warehouse_dataset",
+        ),
     )
 
     id: Mapped[UUID] = mapped_column(
@@ -36,12 +44,12 @@ class WarehouseDataset(Base):
     )
     warehouse_id: Mapped[UUID] = mapped_column(
         PostgreSQLUUID(as_uuid=True),
-        ForeignKey("warehouses.id"),
+        ForeignKey("warehouses.id", ondelete="CASCADE"),
         nullable=False,
     )
     dataset_id: Mapped[UUID] = mapped_column(
         PostgreSQLUUID(as_uuid=True),
-        ForeignKey("dataset_definitions.id"),
+        ForeignKey("dataset_definitions.id", ondelete="CASCADE"),
         nullable=False,
     )
     requirement_type: Mapped[DatasetRequirementType] = mapped_column(
@@ -60,5 +68,7 @@ class WarehouseDataset(Base):
     mapping: Mapped["WarehouseDatasetMapping | None"] = relationship(
         back_populates="warehouse_dataset",
         cascade="all, delete-orphan",
+        passive_deletes=True,
         uselist=False,
+        foreign_keys="WarehouseDatasetMapping.warehouse_dataset_id",
     )

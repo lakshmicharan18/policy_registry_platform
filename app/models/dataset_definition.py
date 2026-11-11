@@ -29,12 +29,16 @@ class DatasetDefinition(Base):
     columns: Mapped[list["DatasetColumn"]] = relationship(
         back_populates="dataset",
         cascade="all, delete-orphan",
+        passive_deletes=True,
         order_by="DatasetColumn.column_name",
     )
     warehouse_associations: Mapped[list["WarehouseDataset"]] = relationship(
-        back_populates="dataset"
+        back_populates="dataset",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )
     requirement_rules: Mapped[list["DatasetRequirementRule"]] = relationship(
         back_populates="dataset",
         cascade="all, delete-orphan",
+        passive_deletes=True,
     )

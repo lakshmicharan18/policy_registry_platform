@@ -9,6 +9,13 @@ __pycache__/
 # Environment variables and secrets
 .env
 .env.*
+data/uploads/
+
+# Frontend dependencies and generated build output
+frontend/node_modules/
+frontend/dist/
+*.tsbuildinfo
+npm-debug.log*
 
 # Test cache
 .pytest_cache/
